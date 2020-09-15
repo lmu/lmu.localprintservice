@@ -1,0 +1,58 @@
+# Python
+*.py[cod]
+.cache
+/.Python
+
+#PyENV
+/.python-version
+
+# Packages / zc.buildout / venv
+*.egg
+*.egg-info
+/local.cfg
+/.eggs/
+/.installed.cfg
+/.mr.developer.cfg
+/pyvenv.cfg
+/_build/
+/bin/
+/_build/
+/develop-eggs/
+/dist/
+/eggs/
+/etc/
+/include/
+/lib/
+/local/
+/parts/
+/sdist/
+/share/
+/src-mrd/
+/var/
+
+# Installer logs
+pip-log.txt
+pip-selfcheck.json
+
+# Unit test / coverage reports
+/.coverage*
+/coverage.xml
+/.tox
+.pytest_cache
+
+# Codeintel
+.codeintel
+
+# Editors specific
+/.idea/
+/.Python
+/.ropeproject/
+/.project
+/.pydevproject
+.mypy_cache/
+
+# JavaScript specific
+node_modules/
+
+# MAC specifics
+.DS_Store
