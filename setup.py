@@ -16,7 +16,6 @@ requires = [
     "plaster_pastedeploy",
     "pyramid",
     "pyramid_openapi3",
-    "pyramid_retry",
     "waitress",
     "pywin32",
 ]
