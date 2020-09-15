@@ -1,8 +1,9 @@
-lmucard.porter README
-=====================
+============================
+lmu.localprintservice README
+============================
 
 Getting Started
----------------
+===============
 
 - cd <directory containing this file>
 

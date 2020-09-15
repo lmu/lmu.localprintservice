@@ -1,0 +1,41 @@
+openapi: "3.0.2"
+info:
+  title: "lmu.localprintservice"
+  description: >
+    REST API for silent printing of PDF files from a JavaScript Frontend.
+  version: "1.0.0dev0"
+servers:
+  - url: http://localhost:6543/api/v1
+    description: Local Development Instance
+  - url: https://localhost:6543/api/v1
+    description: Local Development Instance (https)
+paths:
+  /getPrinters:
+    get:
+      summary: Info about System
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+                  users:
+                    type: integer
+                    example: 2
+                  cards:
+                    type: integer
+                    example: 4
+                  last_data_update:
+                    type: string
+                    format: date-time
+                    example: "1970-01-01T00:00:00Z"
+                  last_door_open_event:
+                    type: string
+                    format: date-time
+                    example: "1970-01-01T00:00:00Z"
+
