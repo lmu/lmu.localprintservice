@@ -57,7 +57,7 @@ setup(
     url="",
     keywords="web pylons pyramid",
     packages=find_packages("src", exclude=["ez_setup"]),
-    namespace_packages=["lmucard"],
+    namespace_packages=["lmu"],
     package_dir={"": "src"},
     include_package_data=True,
     zip_safe=False,

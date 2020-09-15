@@ -7,7 +7,6 @@ def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
     with Configurator(settings=settings) as config:
-        config.include(".models")
         config.include("pyramid_openapi3")
         config.pyramid_openapi3_spec(
             os.path.join(os.path.dirname(__file__), "openapi.yaml")
