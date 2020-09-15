@@ -18,6 +18,7 @@ requires = [
     "pyramid_openapi3",
     "pyramid_retry",
     "waitress",
+    "pywin32",
 ]
 
 # List of dependencies installed via `pip install -e ".[dev]"`
