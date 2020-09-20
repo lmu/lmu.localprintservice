@@ -27,6 +27,40 @@ paths:
   /printpdf:
     post:
       summary: Silent Print of the provided PDF on designated printer
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                printer:
+                  type: string
+                  example: Printer 1
+                file:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+    put:
+      summary: Silent Print of the provided PDF to the default printer
+      parameters:
+          - in: query
+            name: printer
+            schema:
+              type: string
+            required: false
+            description: designated printer
+      requestBody:
+        content:
+          application/pdf:
+            schema:
+              type: string
+              format: binary
       responses:
         "201":
           description: Created
