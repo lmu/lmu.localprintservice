@@ -34,6 +34,15 @@ def get_default_printer():
         return default_printer
 
 
+options = {
+    "media": "A4",
+    "InputSlot": "Tray2",
+    "orientation-requested": "4",  # "landscape",
+    "fit-to-page": "true",
+    "print-quality": "5",
+    "sides": "two-sided-long-edge",
+}
+
 @view_config(route_name="get_printer_route", request_method="GET", renderer="json", openapi=True)
 def list_printer_view(request):
     printers = []
@@ -71,17 +80,20 @@ def list_printer_view(request):
 
 @view_config(route_name="print_pdf_route_post", request_method="POST", openapi=False)
 def print_pdf_post_view(request):
-    breakpoint()
     printer_id = request.params.get("printer")
-    files = request.params.get(files)
-    #if not pdf_files or not printer_id:
-    #    return Response("Bad Request", status=400)
+    counter = 1
+    if not printer_id:
+        return Response("Bad Request", status=400)
     with tempfile.TemporaryDirectory(suffix="lmu.localprintservice") as dir:
-        with open(os.path.join(os.path.abspath(dir), "file_to_print.pdf"), "w+b") as pdf:
-            pdf.write(base64.b64decode(request.body))
-
+        for key, value in request.params.items():
+            if key == "printer":
+                pass
+            else:
+                if key == "file" and value.type == "application/pdf":
+                    with open(os.path.join(os.path.abspath(dir), f"file_to_print{counter:05}.pdf"), "w+b") as pdf:
+                        pdf.write(value.file.read())
+                        counter += 1
         files_to_print = glob.glob(os.path.join(os.path.abspath(dir), "*.pdf"))
-        #breakpoint()
         if sys.platform == "win32":
             from win32 import win32print
             return win32print.GetDefaultPrinter()
@@ -89,10 +101,9 @@ def print_pdf_post_view(request):
             import cups
             conn = cups.Connection()
             printer = "HP_LaserJet_400_colorMFP_M475dn"
-            conn.printFiles(printer, files_to_print, "Test", {})
+            conn.printFiles(printer, files_to_print, "Test", options)
     return Response("Created", status=201)
 
-    return Response("Created", status=201)
 
 
 @view_config(route_name="print_pdf_route_put", request_method="PUT", openapi=True)
@@ -112,14 +123,6 @@ def print_pdf_put_view(request):
             import cups
             conn = cups.Connection()
             breakpoint()
-            options = {
-                "media": "A4",
-                "InputSlot": "Tray2",
-                "orientation-requested": "4",  # "landscape",
-                "fit-to-page": "true",
-                "print-quality": "5",
-                "sides": "two-sided-long-edge",
-            }
             conn.printFiles(printer, files_to_print, "Test", options)
     return Response("Created", status=201)
 
