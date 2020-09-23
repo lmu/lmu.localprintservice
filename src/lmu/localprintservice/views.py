@@ -4,8 +4,10 @@ from pyramid.view import view_config
 from pyramid.view import notfound_view_config
 
 import base64
+import ghostscript
 import glob
 import json
+import locale
 import os.path
 import subprocess
 import sys
@@ -46,6 +48,19 @@ def getGhostScript():
             return str(gs[0])
         else:
             breakpoint()
+
+
+def getGhostPrint():
+    if sys.platform == "win32":
+        p = Path("/Program Files")
+        gs = [f for f in p.rglob("gsprint.exe")]
+        if len(gs) == 0:
+            raise NotImplementedError("No GhostView / GhostPrint Dependency found.")
+        elif len(gs) == 1:
+            return str(gs[0])
+        else:
+            breakpoint()
+
 
 options = {
     "media": "A4",
@@ -126,16 +141,22 @@ def print_pdf_put_view(request):
     printer = request.params.get("printer") if request.params.get("printer") else get_default_printer()
     if not request.body:
         return Response("Bad Request", status=400)
-    #pdf_file = request.params.get("pdf_file")
     with tempfile.TemporaryDirectory(suffix="lmu.localprintservice") as dir:
         with open(os.path.join(os.path.abspath(dir), "file_to_print.pdf"), "w+b") as pdf:
             pdf.write(request.body)
-        files_to_print = glob.glob(os.path.join(os.path.abspath(dir), "*.pdf"))
+        files_to_print = glob.glob(os.path.join(os.path.abspath(dir), "*.pdf"))[0].replace('\\\\', '\\')
         if sys.platform == "win32":
-            args = f'"{getGhostScript()}" -sDevice=mswinpr2 -dBATCH -dNOPAUSE -dFitPage -sOutputFile="%printer%{printer}" '
-            ghostscript = args + os.path.join(files_to_print[0]).replace("\\", "\\\\")
-            print(ghostscript)
-            subprocess.call(ghostscript, shell=True)
+            args = [
+                    "-dPrinted", "-dBATCH", "-dNOSAFER", "-dNOPAUSE", "-dNOPROMPT"
+                    "-q",
+                    "-dNumCopies#1",
+                    "-sDEVICE#mswinpr2",
+                    f'-sOutputFile#"%printer%{printer}"',
+                    f'"{files_to_print}"'
+                ]
+            encoding = locale.getpreferredencoding()
+            args = [a.encode(encoding) for a in args]
+            ghostscript.Ghostscript(*args)
         else:
             import cups
             conn = cups.Connection()

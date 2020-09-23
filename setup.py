@@ -41,6 +41,7 @@ setup(
         "pyramid_openapi3",
         "waitress",
         "pywin32; sys_platform == 'win32'",
+        "ghostscript; sys_platform == 'win32'",
         "pycups; sys_platform != 'win32'",
     ],
     extras_require={
