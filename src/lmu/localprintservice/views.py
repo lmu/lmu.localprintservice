@@ -1,3 +1,4 @@
+from pathlib import Path
 from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.view import notfound_view_config
@@ -6,6 +7,7 @@ import base64
 import glob
 import json
 import os.path
+import subprocess
 import sys
 import tempfile
 
@@ -33,6 +35,17 @@ def get_default_printer():
             default_printer = printers[0]
         return default_printer
 
+
+def getGhostScript():
+    if sys.platform == "win32":
+        p = Path("/Program Files")
+        gs = [f for f in p.rglob("gswin64c.exe")] + [f for f in p.rglob("gswin32c.exe")]
+        if len(gs) == 0:
+            raise NotImplementedError("No GhostScript Dependency found.")
+        elif len(gs) == 1:
+            return str(gs[0])
+        else:
+            breakpoint()
 
 options = {
     "media": "A4",
@@ -95,14 +108,16 @@ def print_pdf_post_view(request):
                         counter += 1
         files_to_print = glob.glob(os.path.join(os.path.abspath(dir), "*.pdf"))
         if sys.platform == "win32":
-            from win32 import win32print
-            return win32print.GetDefaultPrinter()
+            args = f'"{getGhostScript()}" -sDevice=mswinpr2 -dBATCH -dNOPAUSE -dFitPage -sOutputFile="%printer%{printer}" '
+            for f in files_to_print:
+                ghostscript = args + os.path.join(files_to_print[0]).replace("\\", "\\\\")
+                subprocess.call(ghostscript, shell=True)
         else:
             import cups
             conn = cups.Connection()
             printer = "HP_LaserJet_400_colorMFP_M475dn"
             conn.printFiles(printer, files_to_print, "Test", options)
-    return Response("Created", status=201)
+    return Response("Accepted", status=202)
 
 
 
@@ -117,14 +132,15 @@ def print_pdf_put_view(request):
             pdf.write(request.body)
         files_to_print = glob.glob(os.path.join(os.path.abspath(dir), "*.pdf"))
         if sys.platform == "win32":
-            from win32 import win32print
-            return win32print.GetDefaultPrinter()
+            args = f'"{getGhostScript()}" -sDevice=mswinpr2 -dBATCH -dNOPAUSE -dFitPage -sOutputFile="%printer%{printer}" '
+            ghostscript = args + os.path.join(files_to_print[0]).replace("\\", "\\\\")
+            print(ghostscript)
+            subprocess.call(ghostscript, shell=True)
         else:
             import cups
             conn = cups.Connection()
-            breakpoint()
             conn.printFiles(printer, files_to_print, "Test", options)
-    return Response("Created", status=201)
+    return Response(status=202)
 
 
 @notfound_view_config(renderer="json")

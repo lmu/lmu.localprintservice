@@ -24,7 +24,7 @@ paths:
                   type: string
                   example: "Printer 1"
 
-  /printpdf:
+  /print:
     post:
       summary: Silent Print of the provided PDF on designated printer
       requestBody:
@@ -42,8 +42,8 @@ paths:
                     type: string
                     format: binary
       responses:
-        "201":
-          description: Created
+        "202":
+          description: Accepted
         "400":
           description: Bad Request
     put:
@@ -62,7 +62,7 @@ paths:
               type: string
               format: binary
       responses:
-        "201":
-          description: Created
+        "202":
+          description: Accepted
         "400":
           description: Bad Request

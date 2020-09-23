@@ -1,6 +1,7 @@
 from pyramid.config import Configurator
 
 import os.path
+import sys
 
 
 def main(global_config, **settings):
