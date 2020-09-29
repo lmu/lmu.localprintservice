@@ -25,6 +25,10 @@ paths:
                   example: "Printer 1"
 
   /print:
+    options:
+      responses:
+        "200":
+          description: OK
     post:
       summary: Silent Print of the provided PDF on designated printer
       requestBody:

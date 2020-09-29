@@ -4,7 +4,6 @@ from pyramid.view import view_config
 from pyramid.view import notfound_view_config
 
 import base64
-import ghostscript
 import glob
 import json
 import locale
@@ -100,14 +99,12 @@ def list_printer_view(request):
                 ):
                 printers.append(printer)
     request.response.status = 200
-    request.response.headers.update({
-        'Access-Control-Allow-Origin': '*',
-    })
     return printers
 
 
 @view_config(route_name="print_pdf_route_post", request_method="POST", openapi=False)
 def print_pdf_post_view(request):
+    breakpoint()
     printer_id = request.params.get("printer")
     counter = 1
     if not printer_id:
@@ -138,6 +135,7 @@ def print_pdf_post_view(request):
 
 @view_config(route_name="print_pdf_route_put", request_method="PUT", openapi=True)
 def print_pdf_put_view(request):
+    breakpoint()
     printer = request.params.get("printer") if request.params.get("printer") else get_default_printer()
     if not request.body:
         return Response("Bad Request", status=400)
@@ -146,6 +144,7 @@ def print_pdf_put_view(request):
             pdf.write(request.body)
         files_to_print = glob.glob(os.path.join(os.path.abspath(dir), "*.pdf"))[0].replace('\\\\', '\\')
         if sys.platform == "win32":
+            import ghostscript
             args = [
                     "-dPrinted", "-dBATCH", "-dNOSAFER", "-dNOPAUSE", "-dNOPROMPT"
                     "-q",
@@ -161,8 +160,15 @@ def print_pdf_put_view(request):
             import cups
             conn = cups.Connection()
             conn.printFiles(printer, files_to_print, "Test", options)
-    return Response(status=202)
+    request.response.status = 202
+    request.response.headers.update({
+        'Access-Control-Allow-Origin': '*',
+    })
+    return request.response
 
+@view_config(route_name="print_pdf_route_options", request_method="OPTIONS", openapi=True)
+def print_pdf_options_view(request):
+    return Response(status=200)
 
 @notfound_view_config(renderer="json")
 def notfound_view(request):
