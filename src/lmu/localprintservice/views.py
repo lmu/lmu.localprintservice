@@ -104,7 +104,6 @@ def list_printer_view(request):
 
 @view_config(route_name="print_pdf_route_post", request_method="POST", openapi=False)
 def print_pdf_post_view(request):
-    breakpoint()
     printer_id = request.params.get("printer")
     counter = 1
     if not printer_id:
@@ -135,15 +134,14 @@ def print_pdf_post_view(request):
 
 @view_config(route_name="print_pdf_route_put", request_method="PUT", openapi=True)
 def print_pdf_put_view(request):
-    breakpoint()
     printer = request.params.get("printer") if request.params.get("printer") else get_default_printer()
     if not request.body:
         return Response("Bad Request", status=400)
     with tempfile.TemporaryDirectory(suffix="lmu.localprintservice") as dir:
         with open(os.path.join(os.path.abspath(dir), "file_to_print.pdf"), "w+b") as pdf:
             pdf.write(request.body)
-        files_to_print = glob.glob(os.path.join(os.path.abspath(dir), "*.pdf"))[0].replace('\\\\', '\\')
         if sys.platform == "win32":
+            files_to_print = glob.glob(os.path.join(os.path.abspath(dir), "*.pdf"))[0].replace('\\\\', '\\')
             import ghostscript
             args = [
                     "-dPrinted", "-dBATCH", "-dNOSAFER", "-dNOPAUSE", "-dNOPROMPT"
@@ -157,6 +155,7 @@ def print_pdf_put_view(request):
             args = [a.encode(encoding) for a in args]
             ghostscript.Ghostscript(*args)
         else:
+            files_to_print = glob.glob(os.path.join(os.path.abspath(dir), "*.pdf"))
             import cups
             conn = cups.Connection()
             conn.printFiles(printer, files_to_print, "Test", options)
